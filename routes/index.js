@@ -53,7 +53,11 @@ router.post('/export-excel', async function(req, res, next) {
       res.send(err);
   });
   const result = excelToJson({
-    sourceFile: `./uploads/instagram.xlsx`
+    sourceFile: `./uploads/instagram.xlsx`,
+    columnToKey: {
+      A: 'STT',
+      B: 'URL_PROFILE'
+    }
   });
   console.log(result);
   const date = new Date(start_date);
