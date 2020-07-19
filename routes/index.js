@@ -41,7 +41,7 @@ router.post('/export-excel', async function(req, res, next) {
     console.log('có file')
   }
   if (!req.files || Object.keys(req.files).length === 0) {
-    res.render('index', {title: 'Instagram Scraper', message: 'No files were uploaded!'});
+    res.send('No files were uploaded!');
   }
   const start_date = req.body.published_date;
   const max_like = req.body.max_like;
@@ -50,8 +50,7 @@ router.post('/export-excel', async function(req, res, next) {
   let sampleFile = req.files.file_data;
   await sampleFile.mv('./uploads/instagram.xlsx', function (err) {
     if (err)
-      res.render('index', {title: 'Instagram Scraper', message: err});
-    res.render('index', {title: 'Instagram Scraper', message: 'File uploaded'});
+      res.send(err);
   });
   const result = excelToJson({
     sourceFile: `./uploads/instagram.xlsx`
