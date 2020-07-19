@@ -61,8 +61,7 @@ router.post('/export-excel', async function(req, res, next) {
   const milliseconds = date.getTime();
   console.log(milliseconds);
 
-
-  res.render('index', {title: 'Instagram Scraper'});
+  res.send(result);
 });
 
 module.exports = router;
