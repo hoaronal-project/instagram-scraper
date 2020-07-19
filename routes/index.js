@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require("fs");
 const puppeteer = require('puppeteer');
+const excelToJson = require('convert-excel-to-json');
 
 router.get('/fetch-medias', async function(req, res) {
   const username = req.query.username;
@@ -36,20 +37,32 @@ router.get('/', async function(req, res) {
 });
 
 router.post('/export-excel', async function(req, res, next) {
-  const start_date = req.body.start_date;
-  const max_like = req.body.max_like;
-  console.log(req.files.file_data);
-
-  const date = new Date(start_date);
-  const milliseconds = date.getTime();
-  console.log(milliseconds);
   if (req.files) {
     console.log('có file')
   }
   if (!req.files || Object.keys(req.files).length === 0) {
-    return res.status(400).send('No files were uploaded.');
+    res.render('index', {title: 'Instagram Scraper', message: 'No files were uploaded!'});
   }
-  res.render('index', {title: 'sdsdsd'});
+  const start_date = req.body.published_date;
+  const max_like = req.body.max_like;
+  console.log(req.files.file_data);
+
+  let sampleFile = req.files.file_data;
+  await sampleFile.mv('./uploads/instagram.xlsx', function (err) {
+    if (err)
+      res.render('index', {title: 'Instagram Scraper', message: err});
+    res.render('index', {title: 'Instagram Scraper', message: 'File uploaded'});
+  });
+  const result = excelToJson({
+    sourceFile: `./uploads/instagram.xlsx`
+  });
+  console.log(result);
+  const date = new Date(start_date);
+  const milliseconds = date.getTime();
+  console.log(milliseconds);
+
+
+  res.render('index', {title: 'Instagram Scraper'});
 });
 
 module.exports = router;

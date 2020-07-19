@@ -3,6 +3,7 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="shortcut icon" href="/images/logo.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css" />
@@ -13,19 +14,18 @@
         <div class="col-md-12">
           <img class="mx-auto d-block" alt="Tam dong tam" class="center" height="92" width="272" src="/images/logo.png">
         </div>
-        <div class="col-md-4">
-        </div>
+        <div class="col-md-4"></div>
         <div class="col-md-4">
           <form action="/export-excel" method="post" enctype="multipart/form-data">
             <div class="dates">
               <div class="input-group mb-4">
-                <input class="form-control" type="text" placeholder="start date" name="start_date" id="startdate_datepicker">
+                <input class="form-control" type="text" placeholder="Published date" name="published_date" id="date_datepicker">
                 <div class="input-group-append">
                   <span class="fa fa-calendar input-group-text start_date_calendar" aria-hidden="true "></span>
                 </div>
               </div>
               <div class="input-group mb-4">
-                <input class="form-control" type="text" name="max_like" id="max_like">
+                <input class="form-control" type="text" placeholder="Max like" name="max_like" id="max_like">
               </div>
               <div class="input-group mb-4">
                 <input type="file" class="form-control-file" id="file_data" name="file_data">
@@ -34,14 +34,13 @@
             </div>
           </form>
         </div>
-        <div class="col-md-4">
-        </div>
+        <div class="col-md-4"></div>
       </div>
     </div>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
   <script type="text/javascript">
-    $("#startdate_datepicker").datepicker();
+    $("#date_datepicker").datepicker();
   </script>
 </html>
