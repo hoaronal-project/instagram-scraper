@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+          <form action="/login" method="post" enctype="multipart/form-data">
+            <div class="dates">
+              <div class="input-group mb-4">
+                <input class="form-control" type="text" placeholder="Username Instagram" name="username" id="username">
+              </div>
+              <div class="input-group mb-4">
+                <input class="form-control" type="password" placeholder="Password" name="password" id="password">
+              </div>
+              <button type="submit" class="btn btn-primary mb-2 pull-right">Login instagram</button>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-4"></div>
+      </div>
+    </div>
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+  <script type="text/javascript">
+    $("#date_datepicker").datetimepicker({
+      format: 'YYYY-MM-DD HH:mm:ss'
+    });
+  </script>
+</html>
