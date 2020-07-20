@@ -6,47 +6,47 @@ const excelToJson = require('convert-excel-to-json');
 const nodeXlsx = require('node-xlsx');
 
 const BASE_URL_INSTAGRAM = 'https://www.instagram.com/';
+const POST_URL_INSTAGRAM = 'https://www.instagram.com/p/';
 let account = null;
+let browser = null;
+let page = null;
 
-async function getmedias(username, end_cursor) {
+async function login() {
     const usernameLogin = 'hoa.ronal';
     const password = 'Quanghoa1993';
+    browser = await puppeteer.launch();
+    page = await browser.newPage();
+    await page.goto('https://www.instagram.com/accounts/login/');
+    await page.waitForSelector('input[name="username"]');
+    await page.type('input[name="username"]', usernameLogin);
+    await page.type('input[name="password"]', password);
+    await page.waitForSelector('button[type="submit"]');
+    await page.waitFor(2000);
+    await page.click('button[type="submit"]');
+    await page.waitFor(2000);
+}
 
-    const BROWSER = await puppeteer.launch({
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-        ],
-    });
-    const PAGE = await BROWSER.newPage();
-
-    await PAGE.goto(`${BASE_URL_INSTAGRAM}accounts/login/`);
-    await PAGE.waitForSelector('input[name="username"]');
-    await PAGE.type('input[name="username"]', usernameLogin);
-    await PAGE.type('input[name="password"]', password);
-    await PAGE.waitForSelector('button[type="submit"]');
-    await PAGE.click('button[type="submit"]');
-    await PAGE.waitFor(2000);
-
-    account = usernameLogin;
-
-    console.log(`${BASE_URL_INSTAGRAM}${username}/?__a=1`)
-
-    await PAGE.goto(`${BASE_URL_INSTAGRAM}${username}/?__a=1`);
-    let profile = await PAGE.evaluate(() => {
+async function getmedias(username, end_cursor) {
+    await page.goto(`https://www.instagram.com/${username}/?__a=1`);
+    let profile = await page.evaluate(() => {
         return document.querySelector("body").innerText;
     });
-    console.log('profile ===>>>:' + profile)
     const acc = JSON.parse(profile)['graphql']['user'];
-    await PAGE.goto(`${BASE_URL_INSTAGRAM}graphql/query/?query_id=17880160963012870&id=${acc.id}&first=50&after=${end_cursor}`);
-    let medias = await PAGE.evaluate(() => {
+    await page.goto(`https://www.instagram.com/graphql/query/?query_id=17880160963012870&id=${acc.id}&first=50&after=${end_cursor}`)
+    let medias = await page.evaluate(() => {
         return document.querySelector("body").innerText;
     });
-    await PAGE.close();
-    await BROWSER.close();
-    console.log(medias)
+
     return JSON.parse(medias);
 }
+
+async function close() {
+    if (page)
+        await page.close();
+    if (browser)
+        await browser.close();
+}
+
 
 router.get('/', async function (req, res) {
     res.render('index', {title: 'Instagram Scraper'});
@@ -61,9 +61,7 @@ router.post('/export-excel', async function (req, res, next) {
     console.log(req.files.file_data);
 
     let sampleFile = req.files.file_data;
-    console.log('Vào đây 1')
     await sampleFile.mv('./uploads/instagram.xlsx').then();
-    console.log('Vào đây 2')
     let result = excelToJson({
         sourceFile: `./uploads/instagram.xlsx`,
         columnToKey: {
@@ -71,11 +69,9 @@ router.post('/export-excel', async function (req, res, next) {
             B: 'URL_PROFILE'
         }
     });
-    console.log('Vào đây 3')
     fs.unlink('./uploads/instagram.xlsx', function () {
         console.log('Delete file done.')
     });
-    console.log('Vào đây 4')
     let dataExcel = [];
     let arrHeaderTitle = [];
     arrHeaderTitle.push('STT');
@@ -86,17 +82,33 @@ router.post('/export-excel', async function (req, res, next) {
     let end_cursor = '';
     let username = '';
 
+    await login();
+
     for (let index = 0; index < profiles.length; index++) {
         const profile = profiles[index];
-        let rowItemValue = [];
-        username = profile.URL_PROFILE.replace(BASE_URL_INSTAGRAM, '');
-        const data = await getmedias(username, end_cursor);
-        console.log(data)
-        Object.keys(profile).forEach(key => {
-            rowItemValue.push(profile[key]);
-        });
-        dataExcel.push(rowItemValue);
+        username = profile.URL_PROFILE
+            .replace(BASE_URL_INSTAGRAM, '')
+            .replace('/', '');
+
+        let has_next_page = true;
+        while (has_next_page) {
+            const response = await getmedias(username, end_cursor);
+            let page_info = response.data.user.edge_owner_to_timeline_media.page_info;
+            let medias = response.data.user.edge_owner_to_timeline_media.edges;
+            for (let i = 0; i < medias.length; i++) {
+                let rowItemValue = [];
+                let media = medias[i].node;
+                if (media.edge_liked_by > max_like) {
+                    rowItemValue.push(`${POST_URL_INSTAGRAM}${media.shortcode}`);
+                    dataExcel.push(rowItemValue);
+                }
+            }
+            end_cursor = page_info.end_cursor;
+            has_next_page = page_info.has_next_page;
+        }
     }
+
+    await close();
 
     const date = new Date(start_date);
     const milliseconds = date.getTime();
