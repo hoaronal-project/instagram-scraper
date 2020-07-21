@@ -27,7 +27,6 @@ async function login() {
         await page.waitFor(2000);
         await page.click('button[type="submit"]');
         await page.waitFor(2000);
-        await page.pdf({path: 'page.pdf', format: 'A4'})
     }
 }
 
